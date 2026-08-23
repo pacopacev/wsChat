@@ -48,6 +48,14 @@
             color: #fff;
         }
 
+        .user {
+            padding: 10px 14px;
+            border-radius: 12px;
+            align-self: flex-start;
+            background: #3a3a3a;
+            color: #fff;
+        }
+
         .system {
             align-self: center;
             font-size: 13px;
@@ -95,7 +103,15 @@
 </head>
 
 <body>
+    <!-- <h1>Chat-Mat</h1>
+    <div class="user">
+        <p>Welcome to Chat-Mat! This is a simple chat application that allows you to communicate with other users in
+            real-time.
+            Type your message in the input bar below and hit "Send" to send it. Enjoy chatting!</p>
+    </div>
 
+    <div> <input class="user" type="text" id="user-name" placeholder="Type your name…" />
+    </div> -->
 
 
     <div id="input-bar">
@@ -107,6 +123,15 @@
 
     <script>
         const WS_URL = "wss://websocket-server.pgdimitrov.workers.dev/websocket";
+
+
+        const userNameInput = document.getElementById("user-name");
+        // userNameInput.addEventListener("input", () => {
+        //     const userName = userNameInput.value.trim();
+        //     if (userName) {
+        //         addMessage(`Hello, ${userName}! You can start chatting now.`, "system");
+        //     }
+        // });
 
         const chat = document.getElementById("chat");
         const msgInput = document.getElementById("msg");
@@ -123,15 +148,17 @@
         let ws;
 
         function connect() {
-            addMessage("Connecting…", "system");
+            ("Connecting…", "system");
 
             ws = new WebSocket(WS_URL);
 
             ws.onopen = () => addMessage("Connected", "system");
 
+
             ws.onmessage = (e) => {
                 const t = e.data;
-                if (t.includes("Echo")) addMessage(t, "me");
+                console.log("Received:", t);
+                if (t.includes("Wrote")) addMessage(t, "me");
                 else addMessage(t, "other");
             };
 

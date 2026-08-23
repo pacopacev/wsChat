@@ -32,11 +32,11 @@ export class WebSocketServer {
         const conn = this.sessions.get(ws);
 
         // ws.send(`[DO] Echo: ${message}, from: ${conn.id}, total: ${this.sessions.size}`);
-        ws.send(`[DO] Echo: ${message}, from: ${conn.id}, total: ${this.sessions.size}`);
+        ws.send(`Wrote: ${message}`);
 
         this.sessions.forEach((_, session) => {
             if (session !== ws) {
-                session.send(`[DO] Broadcast: ${message}, from: ${conn.id}`);
+                session.send(`Received: ${message}`);
             }
         });
     }
