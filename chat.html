@@ -3,6 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/public/chat_mat.jpg" type="image/jpeg">
+
+
     <title>Chat-Mat</title>
 
     <style>
@@ -14,6 +17,14 @@
             flex-direction: column;
             height: 100vh;
             color: #fff;
+        }
+
+        .title {
+            text-align: flex-start;
+            padding-left: 21px;
+            background: #2a2a2a;
+            margin: 0;
+            font-size: 17px;
         }
 
         /* Chat container */
@@ -56,8 +67,16 @@
             color: #fff;
         }
 
-        .system {
-            align-self: center;
+        .system-connected {
+            color: #4caf50;
+            align-self: flex-end;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .system-disconnected {
+            color: #f44336;
+            align-self: flex-end;
             font-size: 13px;
             opacity: 0.7;
         }
@@ -103,14 +122,15 @@
 </head>
 
 <body>
-    <!-- <h1>Chat-Mat</h1>
-    <div class="user">
-        <p>Welcome to Chat-Mat! This is a simple chat application that allows you to communicate with other users in
-            real-time.
-            Type your message in the input bar below and hit "Send" to send it. Enjoy chatting!</p>
+    <div class="title">
+        <h1>Chat-Mat</h1>
     </div>
 
-    <div> <input class="user" type="text" id="user-name" placeholder="Type your name…" />
+    <!-- <div class="user">
+
+    </div> -->
+
+    <!-- <div> <input class="user" type="text" id="user-name" placeholder="Type your name…" />
     </div> -->
 
 
@@ -152,7 +172,7 @@
 
             ws = new WebSocket(WS_URL);
 
-            ws.onopen = () => addMessage("Connected", "system");
+            ws.onopen = () => addMessage("Connected", "system-connected");
 
 
             ws.onmessage = (e) => {
@@ -163,7 +183,7 @@
             };
 
             ws.onclose = () => {
-                addMessage("Disconnected — reconnecting…", "system");
+                addMessage("Disconnected — reconnecting…", "system-disconnected");
                 setTimeout(connect, 2000);
             };
         }
