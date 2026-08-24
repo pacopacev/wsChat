@@ -3,20 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <link rel="icon" href="public/chat_pat.jpg" type="image/jpeg"> -->
-
-
-    <title>Chat-Pat</title>
+    <link rel="icon" href="public/chat_pat.jpg" type="image/jpeg" sizes="32x32">
+    <title>Chat-Pat Chat</title>
 
     <style>
         body {
-            margin: 0;
+            /* margin: 0; */
             background: #000000;
             font-family: Arial, sans-serif;
-            display: flex;
+            /* display: flex; */
             flex-direction: column;
             height: 100vh;
             color: #fff;
+        }
+
+        .chat {
+            max-width: 1120px;
+            margin: 40px auto;
+            background: #2a2a2a;
+            padding: 50px 60px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            border: 1px solid #3a3a3a;
+
+            /* height: 100vh; */
         }
 
         .title {
@@ -86,7 +96,7 @@
             display: flex;
             padding: 54px;
             background: #2a2a2a;
-            border-top: 1px solid #444;
+            /* border-top: 1px solid #444; */
         }
 
         #input-user {
@@ -94,7 +104,7 @@
             display: inline-flex;
             padding-left: 54px;
             background: #2a2a2a;
-            border-top: 1px solid #444;
+            /* border-top: 1px solid #444; */
             align-items: center;
         }
 
@@ -167,27 +177,59 @@
         #send:hover {
             background: #357ac8;
         }
+
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            text-align: right;
+            padding: 10px;
+            /* background: #2a2a2a; */
+            color: #fff;
+            font-size: 13px;
+            z-index: 999;
+            padding-right: 20px;
+            /* 👈 Keeps it above everything */
+            box-sizing: border-box;
+            /* 👈 Prevents padding from breaking width */
+        }
+
+        hr.solid {
+            border-top: 1px solid #bbb;
+        }
     </style>
 </head>
 
 <body>
-    <div class="title">
-        <h1>Chat-Pat</h1>
+
+    <div class="chat">
+        <div class="title">
+            <h1>Chat-Pat</h1>
+        </div>
+
+        <div id="input-user">
+            <input id="user-name" type="text" placeholder="Type your user-name…" />
+            <span class="indicator" id="indicator" title="At least 3 characters">!</span>
+        </div>
+
+
+        <div id="input-bar">
+            <input id="msg" placeholder="Type a message…" />
+            <button id="send">Send</button>
+        </div>
+
+        <div id="chat"></div>
+
     </div>
 
-    <div id="input-user">
-        <input id="user-name" type="text" placeholder="Type your user-name…" />
-        <span class="indicator" id="indicator" title="At least 3 characters">!</span>
-    </div>
 
-
-    <div id="input-bar">
-        <input id="msg" placeholder="Type a message…" />
-        <button id="send">Send</button>
-    </div>
-
-    <div id="chat"></div>
-
+    <footer class="footer">
+        <hr class="solid">
+        <p id="footer-year"></p>
+        <a href="public/privacy_policy.html" target="_blank" style="color: #4a90e2; text-decoration: none;">Privacy
+            Policy</a>
+    </footer>
     <script>
         const WS_URL = "wss://websocket-server.pgdimitrov.workers.dev/websocket";
 
@@ -243,6 +285,7 @@
             div.className = "msg " + cls;
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
+            autoScrollMessages();
         }
 
         let ws;
@@ -287,6 +330,32 @@
         };
 
         connect();
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const date_updated = document.getElementById("footer-year");
+            if (date_updated) { // Safety check to prevent errors if the ID is missing
+                const currentYear = new Date().getFullYear();
+                date_updated.textContent = `Chat-Pat © ${currentYear}`;
+            }
+        });
+    </script>
+
+    <script>
+        function autoScrollMessages() {
+            const container = document.getElementById('chat'); // ← changed to 'chat'
+            if (!container) return;
+
+            const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+            if (isNearBottom) {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }
     </script>
 
 </body>
