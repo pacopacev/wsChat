@@ -3,15 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/public/chat_mat.jpg" type="image/jpeg">
+    <!-- <link rel="icon" href="public/chat_pat.jpg" type="image/jpeg"> -->
 
 
-    <title>Chat-Mat</title>
+    <title>Chat-Pat</title>
 
     <style>
         body {
             margin: 0;
-            background: #1e1e1e;
+            background: #000000;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
@@ -59,13 +59,13 @@
             color: #fff;
         }
 
-        .user {
+        /* .user {
             padding: 10px 14px;
             border-radius: 12px;
             align-self: flex-start;
             background: #3a3a3a;
             color: #fff;
-        }
+        } */
 
         .system-connected {
             color: #4caf50;
@@ -89,6 +89,15 @@
             border-top: 1px solid #444;
         }
 
+        #input-user {
+            position: relative;
+            display: inline-flex;
+            padding-left: 54px;
+            background: #2a2a2a;
+            border-top: 1px solid #444;
+            align-items: center;
+        }
+
         #msg {
             flex: 1;
             padding: 14px;
@@ -97,6 +106,46 @@
             font-size: 16px;
             background: #fff;
             color: #000;
+        }
+
+        #user-name {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            background: #fff;
+            color: #000;
+        }
+
+        .indicator {
+            /* hidden by default */
+            margin-left: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: gray;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            line-height: 24px;
+            cursor: help;
+            transition: background-color 0.2s;
+        }
+
+        .indicator:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            background: #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
         }
 
         #send {
@@ -123,15 +172,13 @@
 
 <body>
     <div class="title">
-        <h1>Chat-Mat</h1>
+        <h1>Chat-Pat</h1>
     </div>
 
-    <!-- <div class="user">
-
-    </div> -->
-
-    <!-- <div> <input class="user" type="text" id="user-name" placeholder="Type your name…" />
-    </div> -->
+    <div id="input-user">
+        <input id="user-name" type="text" placeholder="Type your user-name…" />
+        <span class="indicator" id="indicator" title="At least 3 characters">!</span>
+    </div>
 
 
     <div id="input-bar">
@@ -154,8 +201,41 @@
         // });
 
         const chat = document.getElementById("chat");
+
         const msgInput = document.getElementById("msg");
+        msgInput.disabled = true;
+
         const sendBtn = document.getElementById("send");
+        sendBtn.disabled = true;
+
+        userNameInput.addEventListener("input", () => {
+            if (userNameInput.value.length > 2) {
+                msgInput.disabled = false;
+
+            }
+            else {
+                msgInput.disabled = true;
+                sendBtn.disabled = true;
+            }
+        });
+
+        msgInput.addEventListener("input", () => {
+            if (msgInput.value.length > 0) {
+                sendBtn.disabled = false;
+            }
+            else {
+                sendBtn.disabled = true;
+            }
+        });
+
+        sendBtn.addEventListener("click", () => {
+            if (msgInput.value.length > 0) {
+                sendBtn.disabled = true;
+            }
+        });
+
+
+
 
         function addMessage(text, cls = "system") {
             const div = document.createElement("div");
@@ -178,7 +258,7 @@
             ws.onmessage = (e) => {
                 const t = e.data;
                 console.log("Received:", t);
-                if (t.includes("Wrote")) addMessage(t, "me");
+                if (t.includes("wrote")) addMessage(t, "me");
                 else addMessage(t, "other");
             };
 
@@ -190,7 +270,14 @@
 
         sendBtn.onclick = () => {
             if (ws.readyState === WebSocket.OPEN) {
-                ws.send(msgInput.value);
+                const msg = {
+                    room: 'default', // optional, for room-based routing on server
+                    username: userNameInput.value,          // optional, for routing on server
+                    content: msgInput.value,
+                    timestamp: Date.now(),
+                    // add any other fields you need
+                };
+                ws.send(JSON.stringify(msg));
                 msgInput.value = "";
             }
         };
