@@ -17,6 +17,40 @@
             color: #fff;
         }
 
+        /* --- The Fixed Header --- */
+        .fixed-header {
+            position: fixed;
+            /* Locks it to the viewport */
+            top: 0;
+            /* Sticks it to the very top edge */
+            left: 0;
+            /* Sticks it to the very left edge */
+            width: 100%;
+            /* Makes it span the full width of the screen */
+            z-index: 1000;
+            /* Ensures it always sits ON TOP of other content */
+
+            /* Optional: Add a background and shadow so text doesn't bleed through */
+            background-color: #2a2a2a;
+            /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
+            padding-right: 20px;
+
+            /* Optional: Flexbox to arrange your logo/menu horizontally */
+            /* display: flex; */
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #fff;
+        }
+
+        /* --- The Content Below (CRUCIAL) --- */
+        .main-content {
+            margin-top: 90px;
+            /* Pushes content DOWN so it doesn't hide behind the header */
+            /* Adjust this number to match your header's total height */
+        }
+
+
+
         .chat {
             max-width: 1120px;
             margin: 40px auto;
@@ -32,7 +66,6 @@
         .title {
             text-align: flex-start;
             padding-left: 21px;
-            background: #2a2a2a;
             margin: 0;
             font-size: 17px;
         }
@@ -78,6 +111,7 @@
         } */
 
         .system-connected {
+
             color: #4caf50;
             align-self: flex-end;
             font-size: 13px;
@@ -85,8 +119,25 @@
         }
 
         .system-disconnected {
+
             color: #f44336;
             align-self: flex-end;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .system-connected1 {
+
+            color: #4caf50;
+
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .system-disconnected1 {
+
+            color: #f44336;
+
             font-size: 13px;
             opacity: 0.7;
         }
@@ -94,7 +145,10 @@
         /* Input bar */
         #input-bar {
             display: flex;
-            padding: 54px;
+            padding-top: 13px;
+            padding-bottom: 13px;
+            padding-left: 54px;
+            padding-right: 23px;
             background: #2a2a2a;
             /* border-top: 1px solid #444; */
         }
@@ -103,6 +157,7 @@
             position: relative;
             display: inline-flex;
             padding-left: 54px;
+            
             background: #2a2a2a;
             /* border-top: 1px solid #444; */
             align-items: center;
@@ -184,8 +239,8 @@
             bottom: 0;
             width: 100%;
             text-align: right;
-            padding: 10px;
-            /* background: #2a2a2a; */
+            padding: 0px;
+            background: #2a2a2a;
             color: #fff;
             font-size: 13px;
             z-index: 999;
@@ -195,17 +250,26 @@
             /* 👈 Prevents padding from breaking width */
         }
 
-        hr.solid {
-            border-top: 1px solid #bbb;
+
+
+        .footer-bottom {
+            display: flex;
+            justify-content: center;
+            /* or space-between */
+            align-items: center;
+            gap: 34px;
+            border-top: 1px solid #fff;
+            /* spacing */
         }
     </style>
 </head>
 
 <body>
 
-    <div class="chat">
+
+    <header class="fixed-header">
         <div class="title">
-            <h1>Chat-Pat</h1>
+            <h1>Chat-Pat Chat</h1>
         </div>
 
         <div id="input-user">
@@ -218,17 +282,29 @@
             <input id="msg" placeholder="Type a message…" />
             <button id="send">Send</button>
         </div>
+    </header>
 
+    <main class="main-content">
+        <p>Your page content goes here...</p>
+        <!-- Add lots of text or dummy content to test scrolling -->
+    </main>
+
+
+
+
+
+    <div class="chat">
         <div id="chat"></div>
-
     </div>
 
 
     <footer class="footer">
-        <hr class="solid">
-        <p id="footer-year"></p>
-        <a href="public/privacy_policy.html" target="_blank" style="color: #4a90e2; text-decoration: none;">Privacy
-            Policy</a>
+        <div class="footer-bottom">
+            <p id="footer-year"></p>
+            <a href="public/privacy_policy.html" target="_blank" style="color: #4a90e2; text-decoration: none;">Privacy
+                Policy</a>
+            <span id="conn"></span>
+        </div>
     </footer>
     <script>
         const WS_URL = "wss://websocket-server.pgdimitrov.workers.dev/websocket";
@@ -286,16 +362,37 @@
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
             autoScrollMessages();
+
+            const conn = document.getElementById("conn");
+            conn.textContent = "Status: Connected";
+            conn.classList.add('system-connected1');
+
+        }
+
+        function updateConnectionStatus(status) {
+            const conn = document.getElementById("conn");
+            conn.textContent = `Status: ${status}`;
+            if (status === "Connected") {
+                conn.classList.remove('system-disconnected1');
+                conn.classList.add('system-connected1');
+            } else {
+                conn.classList.remove('system-connected1');
+                conn.classList.add('system-disconnected1');
+            }
         }
 
         let ws;
 
         function connect() {
-            ("Connecting…", "system");
+            updateConnectionStatus("Connecting…");
 
             ws = new WebSocket(WS_URL);
 
-            ws.onopen = () => addMessage("Connected", "system-connected");
+            // ws.onopen = () => addMessage("Connected", "system-connected");
+            ws.onopen = () => {
+
+                updateConnectionStatus("Connected");
+            };
 
 
             ws.onmessage = (e) => {
@@ -306,7 +403,7 @@
             };
 
             ws.onclose = () => {
-                addMessage("Disconnected — reconnecting…", "system-disconnected");
+                updateConnectionStatus("Disconnected");
                 setTimeout(connect, 2000);
             };
         }
