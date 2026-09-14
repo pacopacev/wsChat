@@ -57,7 +57,7 @@
             font-size: 20px;
         }
 
-
+        /* header right side: user-name + input-bar */
         .header-controls {
             display: flex;
             align-items: center;
@@ -86,7 +86,15 @@
             width: 150px;
         }
 
-
+        #user-name {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            background: #fff;
+            color: #000;
+            width: 150px;
+        }
 
         .indicator {
             width: 24px;
@@ -334,8 +342,20 @@
                 width: 100%;
             }
 
+            #user-name {
+                width: 100%;
+            }
 
+            .main-content {
+                top: 120px;
+                bottom: 70px;
+                width: calc(100% - 16px);
+                border-radius: 8px;
+            }
 
+            #chat {
+                padding: 16px 18px;
+            }
 
             .footer-bottom {
                 gap: 16px;
@@ -385,7 +405,10 @@
                 font-size: 14px;
             }
 
-
+            #user-name {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
 
             #room-name {
                 padding: 6px 10px;
@@ -403,17 +426,28 @@
         </div>
 
 
+        <!-- <div id="input-room">
+            <input id="room-name" type="text" placeholder="Room Name" />
+            <span class="indicator" id="indicator" title="At least 3 characters">!</span>
+        </div> -->
 
-
+        <div id="input-user">
+            <input id="user-name" type="text" placeholder="Username" />
+            <span class="indicator" id="indicator" title="At least 3 characters">!</span>
+        </div>
 
 
         <div id="input-bar">
-            <input id="msg" placeholder="User room" />
+            <input id="msg" placeholder="Type a message…" />
             <button id="send">Send</button>
         </div>
     </header>
 
-
+    <main class="main-content">
+        <div class="chat">
+            <div id="chat"></div>
+        </div>
+    </main>
 
 
 
@@ -434,20 +468,38 @@
         const WS_URL = "wss://websocket-server.pgdimitrov.workers.dev/websocket";
 
 
+        const userNameInput = document.getElementById("user-name");
+        // userNameInput.addEventListener("input", () => {
+        //     const userName = userNameInput.value.trim();
+        //     if (userName) {
+        //         addMessage(`Hello, ${userName}! You can start chatting now.`, "system");
+        //     }
+        // });
 
-
+        const chat = document.getElementById("chat");
 
         const msgInput = document.getElementById("msg");
-        msgInput.disabled = false;
+        msgInput.disabled = true;
 
         const sendBtn = document.getElementById("send");
         sendBtn.disabled = true;
 
+        userNameInput.addEventListener("input", () => {
+            if (userNameInput.value.length > 2) {
+                msgInput.disabled = false;
 
+
+            }
+            else {
+                msgInput.disabled = true;
+                sendBtn.disabled = true;
+            }
+        });
 
         msgInput.addEventListener("input", () => {
             if (msgInput.value.length > 0) {
                 sendBtn.disabled = false;
+                userNameInput.disabled = true;
             }
             else {
                 sendBtn.disabled = true;
@@ -496,7 +548,7 @@
 
             ws = new WebSocket(WS_URL);
 
-            ws.onopen = () => addMessage("Connected", "system-connected");
+            // ws.onopen = () => addMessage("Connected", "system-connected");
             ws.onopen = () => {
 
                 updateConnectionStatus("Connected");
@@ -505,7 +557,7 @@
 
             ws.onmessage = (e) => {
                 const t = e.data;
-                console.log("Room request:", t);
+                console.log("Received:", t);
                 if (t.includes("wrote")) addMessage(t, "me");
                 else addMessage(t, "other");
             };
@@ -520,11 +572,14 @@
             if (ws.readyState === WebSocket.OPEN) {
                 const msg = {
                     room: 'default', // optional, for room-based routing on server
+                    username: userNameInput.value,          // optional, for routing on server
+                    content: msgInput.value,
                     timestamp: Date.now(),
+                    // add any other fields you need
                 };
                 ws.send(JSON.stringify(msg));
                 ws.addEventListener("message", (event) => {
-                    console.log("Room request:", event.data);
+                    console.log("Receivedd:", event.data);
                 });
                 msgInput.value = "";
             }
@@ -548,6 +603,16 @@
         });
     </script>
 
+    <script>
+        function autoScrollMessages() {
+            const container = document.getElementById('chat');
+            if (!container) return;
+
+            requestAnimationFrame(() => {
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+    </script>
 
 </body>
 
